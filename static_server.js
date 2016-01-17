@@ -10,17 +10,21 @@ const mimeType = {
 
 const cache = {};
 cacheAndDeliver = (f, cb) => {
-  if (!cache[f]) {
-    fs.readFile(f, (err, data) => {
-      if (!err) {
-        cache[f] = { content: data };
-      }
-      cb(err, data);
-    });
-    return;
-  }
-  console.log(`load ${f} from chache.`);
-  cb(null, cache[f].content);
+  fs.stat(f, (_err, stats) => {
+    const lastChanged = Date.parse(stats.ctime);
+    const isUpdated = (cache[f] && lastChanged > cache[f].timestamp);
+    if (!cache[f] || isUpdated) {
+      fs.readFile(f, (err, data) => {
+        if (!err) {
+          cache[f] = { content: data, timestamp: Date.now() };
+        }
+        cb(err, data);
+      });
+      return;
+    }
+    console.log(`load ${f} from cache.`);
+    cb(null, cache[f].content);
+  });
 };
 
 http.createServer((request, response) => {
