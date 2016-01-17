@@ -1,14 +1,14 @@
 const http = require('http');
-const path = require('path');
 
 const pages = [
-  { route: '', output: 'Woohoo!' },
-  { route: 'about', output: 'This is simply sample code.' },
-  { route: 'another page', output: (route) => `This is ${route}` }
+  { route: '/', output: 'Woohoo!' },
+  { route: '/about/this', output: 'Multi struct routing by node' },
+  { route: '/about/node', output: 'Event I/O for V8 engine' },
+  { route: '/another page', output: (route) => `This is ${route}` }
 ];
 
 http.createServer((request, response) => {
-  const lookup = path.basename(decodeURI(request.url));
+  const lookup = decodeURI(request.url);
   pages.forEach((page) => {
     if (page.route === lookup) {
       response.writeHead(200, { 'Content-Type': 'text/html' });
